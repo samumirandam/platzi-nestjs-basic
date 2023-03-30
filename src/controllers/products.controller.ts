@@ -10,11 +10,18 @@ import {
 } from '@nestjs/common';
 import { Body, Post } from '@nestjs/common/decorators';
 
+import { ProductsService } from './../services/products.service';
+
+import { ParseIntPipe } from 'src/common/parse-int.pipe';
+
 @Controller('products')
 export class ProductsController {
+  constructor(private productsServise: ProductsService) {}
+
   @Get()
   getProducts(@Query('limit') limit = 100, @Query('offset') offset = 0) {
-    return `La lista de productos con: limit ${limit} y offset: ${offset}`;
+    // return `La lista de productos con: limit ${limit} y offset: ${offset}`;
+    return this.productsServise.findAll();
   }
 
   @Get('filter')
@@ -24,30 +31,34 @@ export class ProductsController {
 
   @Get(':productId')
   @HttpCode(HttpStatus.OK)
-  getOne(@Param('productId') productId: string) {
-    return { message: `El producto buscado es ${productId}` };
+  getOne(@Param('productId', ParseIntPipe) productId: number) {
+    // return { message: `El producto buscado es ${productId}` };
+    return this.productsServise.findOne(productId);
   }
 
   @Post()
   create(@Body() payload: any) {
-    return {
-      message: 'action to create',
-      payload,
-    };
+    // return {
+    //   message: 'action to create',
+    //   payload,
+    // };
+    this.productsServise.create(payload);
   }
 
   @Put(':id')
   update(@Param('id') id: number, @Body() payload: any) {
-    return {
-      id,
-      payload,
-    };
+    // return {
+    //   id,
+    //   payload,
+    // };
+    return this.productsServise.update(id, payload);
   }
 
   @Delete(':id')
   delete(@Param('id') id: number) {
-    return {
-      id,
-    };
+    //   return {
+    //     id,
+    //   };
+    return this.productsServise.remove(+id);
   }
 }
